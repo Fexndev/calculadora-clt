@@ -363,13 +363,15 @@ function renderResultado(r) {
             <div class="result-total-value">${formatBRL(r.totalLiquido + r.fgts.total)}</div>
         </div>
 
-        <div class="verbas-section" style="font-size:.72rem;color:var(--text-muted);border:none;background:none;padding:8px 0">
+        <div class="result-meta">
             Memoria de calculo: salario/30 = ${formatBRL(r.salario / 30)}/dia &middot;
             Admissao: ${fmtData(r.admissao)} &middot;
             Demissao: ${fmtData(r.demissao)} &middot;
             Projecao aviso: ${fmtData(r.dataProjetada)} &middot;
             ${r.anos} ano${r.anos !== 1 ? 's' : ''} completo${r.anos !== 1 ? 's' : ''}
         </div>
+
+        <button class="btn-imprimir" onclick="window.print()">Imprimir / Salvar PDF</button>
     `;
 }
 
@@ -406,6 +408,7 @@ function renderProjecao(params) {
             <div class="proj-title">Projecao — Proximos 12 Meses</div>
             <div class="proj-subtitle">Valor liquido projetado se a demissao ocorrer nos proximos meses, mantendo os mesmos parametros.</div>
             <div class="proj-chart"><canvas id="projCanvas"></canvas></div>
+            <div class="proj-disclaimer">As quedas no grafico ocorrem pela <strong>virada do ano</strong> (13o proporcional zera em janeiro) e pelo <strong>aniversario do contrato</strong> (ferias proporcionais zeram ao completar novo periodo aquisitivo). O aviso previo aumenta 3 dias a cada ano completo.</div>
         </div>
     `);
 

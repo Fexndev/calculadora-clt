@@ -489,13 +489,27 @@ function renderProjecao(params) {
 /* ─── IMPRESSÃO ───────────────────────── */
 
 function prepararImpressao() {
-    // Forçar chart a re-render com resolução alta
     if (_projChart) {
+        // Forçar resolução alta e proporção correta para impressão
         _projChart.options.devicePixelRatio = 4;
+        _projChart.options.aspectRatio = 3.5;
+        _projChart.options.maintainAspectRatio = true;
+        _projChart.canvas.style.height = '170px';
+        _projChart.canvas.style.width = '100%';
         _projChart.resize();
         _projChart.update('none');
     }
-    setTimeout(() => window.print(), 200);
+    setTimeout(() => {
+        window.print();
+        // Restaurar após imprimir
+        if (_projChart) {
+            _projChart.options.maintainAspectRatio = false;
+            _projChart.options.devicePixelRatio = 3;
+            delete _projChart.options.aspectRatio;
+            _projChart.resize();
+            _projChart.update('none');
+        }
+    }, 300);
 }
 
 /* ─── EVENTOS ─────────────────────────── */

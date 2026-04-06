@@ -416,52 +416,44 @@ function renderProjecao(params) {
     const mutedColor = getComputedStyle(document.documentElement).getPropertyValue('--text-muted').trim();
     const borderColor = getComputedStyle(document.documentElement).getPropertyValue('--border').trim();
 
+    const fmtK = v => (v/1000).toFixed(1).replace('.',',') + ' k';
+
+    // FGTS box sobreposto
+    const fgtsAtual = pontos[0].fgts;
+    const fgtsFinal = pontos[pontos.length-1].fgts;
+    const projContainer = area.querySelector('.proj-chart');
+    if (fgtsAtual > 0) {
+        projContainer.insertAdjacentHTML('afterbegin', `<div class="proj-fgts-box"><div class="proj-fgts-label">FGTS a receber</div><div class="proj-fgts-val">${formatBRL(fgtsAtual)}</div>${fgtsFinal!==fgtsAtual?`<div class="proj-fgts-detail">Em 12m: ${formatBRL(fgtsFinal)}</div>`:''}</div>`);
+    }
+
     _projChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: pontos.map(p => p.label),
-            datasets: [
-                {
-                    label: 'Rescisao liquida',
-                    data: pontos.map(p => p.valor),
-                    borderColor: '#5eead4',
-                    backgroundColor: 'rgba(94,234,212,.08)',
-                    fill: true,
-                    tension: 0.3,
-                    pointRadius: 4,
-                    pointBackgroundColor: '#5eead4',
-                    borderWidth: 2,
-                },
-                {
-                    label: 'FGTS (saldo + multa)',
-                    data: pontos.map(p => p.fgts),
-                    borderColor: '#58a6ff',
-                    backgroundColor: 'transparent',
-                    tension: 0.3,
-                    pointRadius: 3,
-                    pointBackgroundColor: '#58a6ff',
-                    borderWidth: 1.5,
-                    borderDash: [5, 3],
-                },
-            ],
+            datasets: [{
+                label: 'Rescisao liquida',
+                data: pontos.map(p => p.valor),
+                borderColor: '#5eead4',
+                backgroundColor: 'rgba(94,234,212,.06)',
+                fill: true,
+                tension: 0.3,
+                pointRadius: 4,
+                pointBackgroundColor: '#5eead4',
+                borderWidth: 2.5,
+            }],
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            interaction: { mode: 'index', intersect: false },
+            layout: { padding: { top: 28 } },
             plugins: {
-                legend: {
-                    labels: { color: textColor, font: { family: "'Inter'", size: 11 }, boxWidth: 12, padding: 16 },
-                },
+                legend: { display: false },
                 datalabels: {
-                    display: (ctx) => {
-                        const i = ctx.dataIndex, len = ctx.dataset.data.length;
-                        return ctx.datasetIndex === 0 && (i === 0 || i === len - 1 || i === Math.floor(len / 2));
-                    },
+                    display: true,
                     color: textColor,
-                    font: { family: "'JetBrains Mono'", size: 10, weight: 600 },
-                    anchor: 'end', align: 'top', offset: 6,
-                    formatter: v => formatBRL(v),
+                    font: { family: "'JetBrains Mono'", size: 9, weight: 600 },
+                    anchor: 'end', align: 'top', offset: 4,
+                    formatter: v => fmtK(v),
                 },
                 tooltip: {
                     backgroundColor: '#161b22',
@@ -469,9 +461,7 @@ function renderProjecao(params) {
                     borderWidth: 1,
                     titleFont: { family: "'Inter'", size: 12 },
                     bodyFont: { family: "'JetBrains Mono'", size: 11 },
-                    callbacks: {
-                        label: ctx => '  ' + ctx.dataset.label + ': ' + formatBRL(ctx.parsed.y),
-                    },
+                    callbacks: { label: c => '  ' + formatBRL(c.parsed.y) },
                 },
             },
             scales: {

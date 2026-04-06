@@ -48,7 +48,11 @@ body {
    HEADER
    ═══════════════════════════════════════ */
 
-.header { border-bottom: 1px solid var(--border); }
+.header {
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+    background: var(--bg-page);
+}
 .header-inner {
     max-width: 1200px; margin: 0 auto; padding: 14px 24px;
     display: flex; align-items: center; justify-content: space-between;
@@ -355,6 +359,22 @@ body {
 }
 .proj-subtitle { font-size: .75rem; color: var(--text-muted); margin-bottom: 16px; }
 .proj-chart { position: relative; height: 300px; }
+
+.proj-fgts-box {
+    position: absolute; top: 12px; right: 16px; z-index: 10;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 10px 14px;
+    box-shadow: var(--shadow); text-align: right;
+}
+.proj-fgts-label {
+    font-size: .6rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .06em; color: var(--text-muted);
+}
+.proj-fgts-val {
+    font-family: var(--font-mono); font-size: 1rem; font-weight: 700;
+    color: var(--accent-blue);
+}
+.proj-fgts-detail { font-size: .68rem; color: var(--text-muted); margin-top: 2px; }
 
 /* ═══════════════════════════════════════
    FOOTER

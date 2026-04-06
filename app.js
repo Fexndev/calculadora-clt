@@ -371,7 +371,7 @@ function renderResultado(r) {
             ${r.anos} ano${r.anos !== 1 ? 's' : ''} completo${r.anos !== 1 ? 's' : ''}
         </div>
 
-        <button class="btn-imprimir" onclick="window.print()">Imprimir / Salvar PDF</button>
+        <button class="btn-imprimir" onclick="prepararImpressao()">Imprimir / Salvar PDF</button>
     `;
 }
 
@@ -484,6 +484,18 @@ function renderProjecao(params) {
             },
         },
     });
+}
+
+/* ─── IMPRESSÃO ───────────────────────── */
+
+function prepararImpressao() {
+    // Forçar chart a re-render com resolução alta
+    if (_projChart) {
+        _projChart.options.devicePixelRatio = 4;
+        _projChart.resize();
+        _projChart.update('none');
+    }
+    setTimeout(() => window.print(), 200);
 }
 
 /* ─── EVENTOS ─────────────────────────── */

@@ -38,62 +38,58 @@
             <div class="layout">
                 <div class="form-card card">
                     <div class="card-title">Dados do Contrato</div>
-
-                    <div class="field">
-                        <label for="salario">Salario Bruto (R$)</label>
-                        <input type="text" id="salario" inputmode="decimal" placeholder="3.500,00">
+                    <div class="form-fields">
+                        <div class="field">
+                            <label for="salario">Salario Bruto (R$)</label>
+                            <input type="text" id="salario" inputmode="decimal" placeholder="3.500,00">
+                        </div>
+                        <div class="field">
+                            <label for="tipoRescisao">Tipo de Rescisao</label>
+                            <select id="tipoRescisao">
+                                <option value="sem_justa_causa">Demissao sem justa causa</option>
+                                <option value="pedido_demissao">Pedido de demissao</option>
+                                <option value="acordo_mutuo">Acordo mutuo (Art. 484-A)</option>
+                                <option value="justa_causa">Demissao por justa causa</option>
+                                <option value="prazo_determinado">Termino de contrato</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="dataAdmissao">Data de Admissao</label>
+                            <input type="date" id="dataAdmissao">
+                        </div>
+                        <div class="field">
+                            <label for="dataDemissao">Data de Demissao</label>
+                            <input type="date" id="dataDemissao">
+                        </div>
+                        <div class="field">
+                            <label for="avisoTipo">Aviso Previo</label>
+                            <select id="avisoTipo">
+                                <option value="indenizado">Indenizado</option>
+                                <option value="trabalhado">Trabalhado</option>
+                                <option value="dispensado">Dispensado pelo empregador</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="saldoFGTS">Saldo de FGTS (R$)</label>
+                            <input type="text" id="saldoFGTS" inputmode="decimal" placeholder="12.000,00">
+                        </div>
+                        <div class="field">
+                            <label for="feriasVencidas">Ferias vencidas?</label>
+                            <select id="feriasVencidas">
+                                <option value="0">Nao</option>
+                                <option value="1">Sim — 1 periodo</option>
+                                <option value="2">Sim — 2 periodos</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="dependentes">Dependentes (IRRF)</label>
+                            <input type="number" id="dependentes" value="0" min="0" max="20">
+                        </div>
+                        <div class="field-full">
+                            <button class="btn-calcular" id="btnCalcular">Calcular Rescisao</button>
+                            <button class="btn-recalcular" id="btnEditar">Editar parametros</button>
+                        </div>
                     </div>
-
-                    <div class="field">
-                        <label for="dataAdmissao">Data de Admissao</label>
-                        <input type="date" id="dataAdmissao">
-                    </div>
-
-                    <div class="field">
-                        <label for="dataDemissao">Data de Demissao</label>
-                        <input type="date" id="dataDemissao">
-                    </div>
-
-                    <div class="field">
-                        <label for="tipoRescisao">Tipo de Rescisao</label>
-                        <select id="tipoRescisao">
-                            <option value="sem_justa_causa">Demissao sem justa causa</option>
-                            <option value="pedido_demissao">Pedido de demissao</option>
-                            <option value="acordo_mutuo">Acordo mutuo (Art. 484-A)</option>
-                            <option value="justa_causa">Demissao por justa causa</option>
-                            <option value="prazo_determinado">Termino de contrato</option>
-                        </select>
-                    </div>
-
-                    <div class="field">
-                        <label for="avisoTipo">Aviso Previo</label>
-                        <select id="avisoTipo">
-                            <option value="indenizado">Indenizado</option>
-                            <option value="trabalhado">Trabalhado</option>
-                            <option value="dispensado">Dispensado pelo empregador</option>
-                        </select>
-                    </div>
-
-                    <div class="field">
-                        <label for="saldoFGTS">Saldo de FGTS (R$)</label>
-                        <input type="text" id="saldoFGTS" inputmode="decimal" placeholder="12.000,00">
-                    </div>
-
-                    <div class="field">
-                        <label for="feriasVencidas">Ferias vencidas?</label>
-                        <select id="feriasVencidas">
-                            <option value="0">Nao</option>
-                            <option value="1">Sim — 1 periodo</option>
-                            <option value="2">Sim — 2 periodos</option>
-                        </select>
-                    </div>
-
-                    <div class="field">
-                        <label for="dependentes">Dependentes (IRRF)</label>
-                        <input type="number" id="dependentes" value="0" min="0" max="20">
-                    </div>
-
-                    <button class="btn-calcular" id="btnCalcular">Calcular Rescisao</button>
                 </div>
 
                 <div class="result-area" id="resultArea">

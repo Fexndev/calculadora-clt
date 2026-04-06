@@ -304,32 +304,34 @@ function renderResultado(r) {
             <div class="result-total-value">${formatBRL(r.totalLiquido)}</div>
         </div>
 
-        <div class="verbas-section">
-            <div class="verbas-title">Verbas Rescisorias</div>
-            ${r.verbas.map(v => `
-                <div class="verba-row">
-                    <div><div class="verba-label">${v.label}</div>${v.detail ? `<div class="verba-detail">${v.detail}</div>` : ''}</div>
-                    <div class="verba-valor positivo">${formatBRL(v.valor)}</div>
+        <div class="result-grid">
+            <div class="verbas-section">
+                <div class="verbas-title">Verbas Rescisorias</div>
+                ${r.verbas.map(v => `
+                    <div class="verba-row">
+                        <div><div class="verba-label">${v.label}</div>${v.detail ? `<div class="verba-detail">${v.detail}</div>` : ''}</div>
+                        <div class="verba-valor positivo">${formatBRL(v.valor)}</div>
+                    </div>
+                `).join('')}
+                <div class="verba-row total">
+                    <div class="verba-label">Total de vencimentos</div>
+                    <div class="verba-valor positivo">${formatBRL(r.totalVerbas)}</div>
                 </div>
-            `).join('')}
-            <div class="verba-row total">
-                <div class="verba-label">Total de vencimentos</div>
-                <div class="verba-valor positivo">${formatBRL(r.totalVerbas)}</div>
             </div>
-        </div>
 
-        <div class="verbas-section">
-            <div class="verbas-title">Descontos</div>
-            ${r.descontos.map(v => `
-                <div class="verba-row">
-                    <div><div class="verba-label">${v.label}</div>${v.detail ? `<div class="verba-detail">${v.detail}</div>` : ''}</div>
-                    <div class="verba-valor negativo">${formatBRL(v.valor)}</div>
+            <div class="verbas-section">
+                <div class="verbas-title">Descontos</div>
+                ${r.descontos.map(v => `
+                    <div class="verba-row">
+                        <div><div class="verba-label">${v.label}</div>${v.detail ? `<div class="verba-detail">${v.detail}</div>` : ''}</div>
+                        <div class="verba-valor negativo">${formatBRL(v.valor)}</div>
+                    </div>
+                `).join('')}
+                ${r.descontos.length === 0 ? '<div class="verba-row"><div class="verba-label">Nenhum desconto</div><div class="verba-valor neutro">R$ 0,00</div></div>' : ''}
+                <div class="verba-row total">
+                    <div class="verba-label">Total de descontos</div>
+                    <div class="verba-valor negativo">${formatBRL(r.totalDescontos)}</div>
                 </div>
-            `).join('')}
-            ${r.descontos.length === 0 ? '<div class="verba-row"><div class="verba-label">Nenhum desconto</div><div class="verba-valor neutro">R$ 0,00</div></div>' : ''}
-            <div class="verba-row total">
-                <div class="verba-label">Total de descontos</div>
-                <div class="verba-valor negativo">${formatBRL(r.totalDescontos)}</div>
             </div>
         </div>
 
@@ -512,6 +514,14 @@ function init() {
     });
 
     // Calcular
+    // Botão editar: volta ao estado inicial
+    document.getElementById('btnEditar').addEventListener('click', () => {
+        document.querySelector('.main').classList.remove('calculated');
+        document.getElementById('resultArea').innerHTML = '';
+        document.getElementById('projecaoArea').innerHTML = '';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
     document.getElementById('btnCalcular').addEventListener('click', () => {
         const salario = parseBRL(document.getElementById('salario').value);
         const admissao = new Date(document.getElementById('dataAdmissao').value + 'T00:00:00');
@@ -528,6 +538,7 @@ function init() {
 
         const r = calcularRescisao({ salario, admissao, demissao, tipo, avisoTipo, saldoFGTS, feriasVencidas, dependentes });
         const calcParams = { salario, admissao, demissao, tipo, avisoTipo, saldoFGTS, feriasVencidas, dependentes };
+        document.querySelector('.main').classList.add('calculated');
         renderResultado(r);
         renderProjecao(calcParams);
 

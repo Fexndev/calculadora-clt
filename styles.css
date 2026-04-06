@@ -48,11 +48,9 @@ body {
    HEADER
    ═══════════════════════════════════════ */
 
-.header {
-    border-bottom: 1px solid var(--border);
-}
+.header { border-bottom: 1px solid var(--border); }
 .header-inner {
-    max-width: 1100px; margin: 0 auto; padding: 14px 24px;
+    max-width: 1200px; margin: 0 auto; padding: 14px 24px;
     display: flex; align-items: center; justify-content: space-between;
     flex-wrap: wrap; gap: 12px;
 }
@@ -79,27 +77,58 @@ body {
 .theme-toggle:hover { background: var(--bg-card-hover); }
 
 /* ═══════════════════════════════════════
-   MAIN / INTRO
+   MAIN
    ═══════════════════════════════════════ */
 
-.main { max-width: 1100px; margin: 0 auto; padding: 24px; }
+.main { max-width: 1200px; margin: 0 auto; padding: 24px; }
 
-.intro { margin-bottom: 24px; }
+/* ═══════════════════════════════════════
+   INTRO — estado inicial (hero centralizado)
+   ═══════════════════════════════════════ */
+
+.intro {
+    text-align: center; margin-bottom: 32px; padding-top: 20px;
+    transition: all .5s ease;
+}
 .intro h1 {
-    font-size: 1.4rem; font-weight: 800; margin-bottom: 6px;
+    font-size: 1.6rem; font-weight: 800; margin-bottom: 8px;
+    justify-content: center;
     display: flex; align-items: center; gap: 10px;
 }
 .intro h1::before {
-    content: ''; width: 4px; height: 22px;
+    content: ''; width: 4px; height: 24px;
     background: var(--accent-teal); border-radius: 2px; flex-shrink: 0;
 }
-.intro p { font-size: .88rem; color: var(--text-secondary); max-width: 600px; }
+.intro p { font-size: .88rem; color: var(--text-secondary); max-width: 520px; margin: 0 auto; }
+
+/* Após calcular */
+.calculated .intro {
+    text-align: left; padding-top: 0; margin-bottom: 20px;
+}
+.calculated .intro h1 { font-size: 1.2rem; justify-content: flex-start; }
+.calculated .intro h1::before { height: 20px; }
+.calculated .intro p { margin: 0; max-width: none; }
 
 /* ═══════════════════════════════════════
-   LAYOUT
+   LAYOUT — dois estados
    ═══════════════════════════════════════ */
 
-.layout { display: grid; grid-template-columns: 380px 1fr; gap: 20px; align-items: start; }
+/* Estado 1: form centralizado hero */
+.layout {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 20px; transition: all .5s ease;
+}
+
+.result-area { width: 100%; display: none; }
+
+/* Estado 2: form sidebar + dashboard */
+.calculated .layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    align-items: start;
+    gap: 20px;
+}
+.calculated .result-area { display: block; }
 
 /* ═══════════════════════════════════════
    CARD
@@ -116,8 +145,27 @@ body {
 }
 
 /* ═══════════════════════════════════════
-   FORM
+   FORM — dois estados
    ═══════════════════════════════════════ */
+
+.form-card {
+    width: 100%; max-width: 520px;
+    transition: all .5s ease, opacity .4s ease;
+}
+
+/* Após calcular: sidebar compacta */
+.calculated .form-card {
+    max-width: none; width: 100%;
+    opacity: .85; position: sticky; top: 16px;
+}
+.calculated .form-card:hover { opacity: 1; }
+
+.calculated .form-card .card-title { font-size: .78rem; margin-bottom: 12px; }
+.calculated .form-card .field { margin-bottom: 10px; }
+.calculated .form-card .field label { font-size: .6rem; }
+.calculated .form-card .field input,
+.calculated .form-card .field select { font-size: .82rem; padding: 7px 10px; }
+.calculated .form-card .btn-calcular { padding: 10px; font-size: .82rem; }
 
 .field { margin-bottom: 14px; }
 
@@ -146,6 +194,14 @@ body {
     padding-right: 32px;
 }
 
+/* Form fields em 2 colunas no estado hero */
+.form-fields {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px;
+}
+.form-fields .field-full { grid-column: 1 / -1; }
+
+.calculated .form-fields { grid-template-columns: 1fr; }
+
 .btn-calcular {
     width: 100%; padding: 12px; margin-top: 6px;
     background: var(--accent-teal); color: var(--bg-page);
@@ -156,15 +212,25 @@ body {
 .btn-calcular:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(94,234,212,.25); }
 .btn-calcular:active { transform: translateY(0); }
 
+/* Botão recalcular (mini) */
+.btn-recalcular {
+    display: none; width: 100%; padding: 8px; margin-top: 8px;
+    background: none; border: 1px solid var(--border); color: var(--text-muted);
+    border-radius: var(--radius-sm); font-family: var(--font-sans);
+    font-size: .75rem; font-weight: 600; cursor: pointer; transition: all .15s;
+}
+.btn-recalcular:hover { border-color: var(--accent-teal); color: var(--text-primary); }
+.calculated .btn-recalcular { display: block; }
+
 /* ═══════════════════════════════════════
-   RESULTADO
+   RESULTADO — dashboard grid
    ═══════════════════════════════════════ */
 
-.result-area { min-height: 400px; }
+.result-area { min-height: 0; }
 
 .result-placeholder {
     display: flex; flex-direction: column; align-items: center;
-    justify-content: center; min-height: 400px; color: var(--text-muted);
+    justify-content: center; min-height: 300px; color: var(--text-muted);
     text-align: center; gap: 12px;
 }
 .result-icon {
@@ -173,7 +239,6 @@ body {
 }
 .result-placeholder p { font-size: .88rem; }
 
-/* Resultado calculado */
 .result-header {
     display: flex; align-items: center; justify-content: space-between;
     margin-bottom: 16px; flex-wrap: wrap; gap: 8px;
@@ -199,7 +264,9 @@ body {
     color: var(--accent-green);
 }
 
-/* Tabela de verbas */
+/* Dashboard grid: verbas e descontos lado a lado */
+.result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
 .verbas-section {
     background: var(--bg-card); border: 1px solid var(--border);
     border-radius: var(--radius); padding: 16px; margin-bottom: 12px;
@@ -233,9 +300,7 @@ body {
 .verba-row.total .verba-valor { font-size: .92rem; font-weight: 800; }
 
 /* Info boxes */
-.info-row {
-    display: flex; gap: 12px; margin-bottom: 12px;
-}
+.info-row { display: flex; gap: 12px; margin-bottom: 12px; }
 .info-box-sm {
     flex: 1; background: var(--bg-card); border: 1px solid var(--border);
     border-radius: var(--radius-sm); padding: 12px; text-align: center;
@@ -244,9 +309,7 @@ body {
     font-size: .6rem; font-weight: 700; text-transform: uppercase;
     letter-spacing: .06em; color: var(--text-muted); margin-bottom: 2px;
 }
-.info-box-value {
-    font-family: var(--font-mono); font-size: 1rem; font-weight: 700;
-}
+.info-box-value { font-family: var(--font-mono); font-size: 1rem; font-weight: 700; }
 
 /* ═══════════════════════════════════════
    LEGAL NOTE
@@ -278,32 +341,48 @@ body {
    FOOTER
    ═══════════════════════════════════════ */
 
-.footer {
-    border-top: 1px solid var(--border);
-}
+.footer { border-top: 1px solid var(--border); }
 .footer-inner {
-    max-width: 1100px; margin: 0 auto; padding: 18px 24px;
+    max-width: 1200px; margin: 0 auto; padding: 18px 24px;
     text-align: center; font-size: .75rem; color: var(--text-muted); line-height: 1.8;
 }
 .footer a { color: var(--accent-teal); text-decoration: none; }
 .footer a:hover { text-decoration: underline; }
 
 /* ═══════════════════════════════════════
+   ANIMAÇÃO DE ENTRADA
+   ═══════════════════════════════════════ */
+
+@keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.result-area { animation: fadeSlideUp .5s ease forwards; }
+
+/* ═══════════════════════════════════════
    RESPONSIVE
    ═══════════════════════════════════════ */
 
 @media (max-width: 768px) {
-    .layout { grid-template-columns: 1fr; }
     .main { padding: 16px; }
     .header-inner, .footer-inner { padding: 12px 16px; }
-    .intro h1 { font-size: 1.2rem; }
+    .intro h1 { font-size: 1.3rem; }
+    .form-fields { grid-template-columns: 1fr; }
+
+    .calculated .layout {
+        grid-template-columns: 1fr;
+    }
+    .calculated .form-card {
+        position: relative; top: 0; opacity: 1;
+    }
     .result-total-value { font-size: 1.6rem; }
     .info-row { flex-direction: column; }
+    .result-grid { grid-template-columns: 1fr; }
     .proj-chart { height: 240px; }
 }
 
 @media (max-width: 480px) {
-    .layout { gap: 12px; }
+    .intro h1 { font-size: 1.1rem; }
     .intro p { font-size: .82rem; }
     .field label { font-size: .62rem; }
     .verba-label { font-size: .78rem; }

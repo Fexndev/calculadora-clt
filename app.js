@@ -24,25 +24,20 @@ const IRRF_FAIXAS = [
     { limite: Infinity, aliquota: 0.275, deducao: 908.73 },
 ];
 
-const DEDUCAO_DEPENDENTE = 189.59; // valor por dependente 2026
-const DESCONTO_SIMPLIFICADO = 607.20; // 25% do limite da 1ª faixa
-
-// Redutor IRRF 2026 para rendas entre R$ 5.000 e R$ 7.350
-// Fórmula: 978.62 - (0.133145 × renda_bruta_mensal)
+const DEDUCAO_DEPENDENTE = 189.59;
+const DESCONTO_SIMPLIFICADO = 607.20;
 const IRRF_REDUTOR_LIMITE_INF = 5000;
 const IRRF_REDUTOR_LIMITE_SUP = 7350;
 const IRRF_REDUTOR_A = 978.62;
 const IRRF_REDUTOR_B = 0.133145;
 
-/* ─── CÁLCULO INSS ────────────────────── */
+/* ─── CÁLCULO INSS (progressivo por faixa) ── */
 
 function calcINSS(salario) {
-    let total = 0;
-    let anterior = 0;
+    let total = 0, anterior = 0;
     for (const faixa of INSS_FAIXAS) {
         if (salario <= anterior) break;
-        const base = Math.min(salario, faixa.limite) - anterior;
-        total += base * faixa.aliquota;
+        total += (Math.min(salario, faixa.limite) - anterior) * faixa.aliquota;
         anterior = faixa.limite;
     }
     return Math.round(total * 100) / 100;
@@ -51,67 +46,38 @@ function calcINSS(salario) {
 /* ─── CÁLCULO IRRF ────────────────────── */
 
 function calcIRRF(salarioBruto, inss, dependentes = 0) {
-    // Base: bruto - INSS - dependentes
     const deducaoDep = dependentes * DEDUCAO_DEPENDENTE;
-    // Maior desconto entre simplificado e (INSS + dependentes)
     const deducaoLegal = inss + deducaoDep;
     const desconto = Math.max(deducaoLegal, DESCONTO_SIMPLIFICADO);
     const base = Math.max(salarioBruto - desconto, 0);
 
-    // Tabela progressiva
     let irrf = 0;
     for (const faixa of IRRF_FAIXAS) {
-        if (base <= faixa.limite) {
-            irrf = base * faixa.aliquota - faixa.deducao;
-            break;
-        }
+        if (base <= faixa.limite) { irrf = base * faixa.aliquota - faixa.deducao; break; }
     }
     irrf = Math.max(irrf, 0);
 
     // Redutor para rendas entre R$ 5.000 e R$ 7.350
     if (salarioBruto <= IRRF_REDUTOR_LIMITE_INF) {
-        irrf = 0; // isento
+        irrf = 0;
     } else if (salarioBruto <= IRRF_REDUTOR_LIMITE_SUP) {
-        const redutor = IRRF_REDUTOR_A - (IRRF_REDUTOR_B * salarioBruto);
-        irrf = Math.max(irrf - Math.max(redutor, 0), 0);
+        irrf = Math.max(irrf - Math.max(IRRF_REDUTOR_A - IRRF_REDUTOR_B * salarioBruto, 0), 0);
     }
-
     return Math.round(irrf * 100) / 100;
 }
 
 /* ─── UTILITÁRIOS ─────────────────────── */
 
+function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
+
+function anosCompletos(adm, dem) {
+    let a = dem.getFullYear() - adm.getFullYear();
+    if (dem.getMonth() < adm.getMonth() || (dem.getMonth() === adm.getMonth() && dem.getDate() < adm.getDate())) a--;
+    return Math.max(a, 0);
+}
+
 function diffMeses(d1, d2) {
-    // Meses completos entre duas datas
     return (d2.getFullYear() - d1.getFullYear()) * 12 + (d2.getMonth() - d1.getMonth());
-}
-
-function diffDias(d1, d2) {
-    return Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
-}
-
-function diasNoMes(date) {
-    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-}
-
-function mesesTrabalhados(admissao, demissao) {
-    // Para 13º e férias: mês conta se trabalhou >= 15 dias
-    let meses = diffMeses(admissao, demissao);
-    const diaAdm = admissao.getDate();
-    const diaDem = demissao.getDate();
-    // Ajustar se o último mês teve >= 15 dias
-    const diasUltimoMes = diaDem;
-    if (diasUltimoMes >= 15) meses++;
-    return meses;
-}
-
-function anosCompletos(admissao, demissao) {
-    let anos = demissao.getFullYear() - admissao.getFullYear();
-    if (demissao.getMonth() < admissao.getMonth() ||
-        (demissao.getMonth() === admissao.getMonth() && demissao.getDate() < admissao.getDate())) {
-        anos--;
-    }
-    return Math.max(anos, 0);
 }
 
 function formatBRL(v) {
@@ -123,168 +89,173 @@ function parseBRL(str) {
     return parseFloat(str.replace(/\./g, '').replace(',', '.')) || 0;
 }
 
+// Conta avos (meses com >= 15 dias trabalhados) entre duas datas
+function contarAvos(inicio, fim) {
+    if (fim <= inicio) return 0;
+    let avos = 0;
+    const d = new Date(inicio);
+    while (d < fim) {
+        const proxMes = new Date(d.getFullYear(), d.getMonth() + 1, d.getDate());
+        const diasNoMes = Math.min(Math.ceil((fim - d) / 86400000), Math.ceil((proxMes - d) / 86400000));
+        if (diasNoMes >= 15) avos++;
+        d.setMonth(d.getMonth() + 1);
+    }
+    return avos;
+}
+
 /* ─── MOTOR DE CÁLCULO ───────────────── */
 
 function calcularRescisao(params) {
     const { salario, admissao, demissao, tipo, avisoTipo, saldoFGTS, feriasVencidas, dependentes } = params;
 
-    const resultado = {
-        tipo,
-        admissao,
-        demissao,
-        salario,
-        verbas: [],    // { label, detail, valor, tipo: 'positivo'|'negativo'|'neutro' }
-        totalBruto: 0,
-        totalDescontos: 0,
-        totalLiquido: 0,
-        diasAviso: 0,
-        mesesTrab: 0,
-        anosComp: 0,
-    };
-
+    const verbas = [];
+    const descontos = [];
     const anos = anosCompletos(admissao, demissao);
-    resultado.anosComp = anos;
+    const diaria = salario / 30; // CLT: sempre /30
 
-    // ─── AVISO PRÉVIO ────────────────────
-    // 30 dias + 3 dias por ano trabalhado, máximo 90 dias
-    const diasAviso = Math.min(30 + (anos * 3), 90);
-    resultado.diasAviso = diasAviso;
-
-    let dataFimContrato = new Date(demissao);
-    let avisoValor = 0;
-
+    // ═══ AVISO PRÉVIO ═══
+    const diasAviso = Math.min(30 + anos * 3, 90);
     const temAviso = tipo === 'sem_justa_causa' || tipo === 'pedido_demissao' || tipo === 'acordo_mutuo';
+    let avisoValor = 0;
+    let dataProjetada = new Date(demissao); // data fim considerando projeção do aviso
+
+    if (temAviso && (avisoTipo === 'indenizado' || avisoTipo === 'trabalhado')) {
+        dataProjetada = addDays(demissao, diasAviso);
+    }
 
     if (temAviso && avisoTipo === 'indenizado') {
         if (tipo === 'acordo_mutuo') {
-            // Acordo: 50% do aviso prévio
-            avisoValor = (salario / 30) * diasAviso * 0.5;
-            resultado.verbas.push({ label: 'Aviso previo indenizado (50%)', detail: `${diasAviso} dias x 50%`, valor: avisoValor, tipo: 'positivo' });
-        } else if (tipo === 'sem_justa_causa' || tipo === 'pedido_demissao') {
-            avisoValor = (salario / 30) * diasAviso;
-            resultado.verbas.push({ label: 'Aviso previo indenizado', detail: `${diasAviso} dias`, valor: avisoValor, tipo: 'positivo' });
+            avisoValor = diaria * diasAviso * 0.5;
+            verbas.push({ label: 'Aviso previo indenizado (50%)', detail: `${diasAviso} dias x 50%`, valor: avisoValor });
+        } else {
+            avisoValor = diaria * diasAviso;
+            verbas.push({ label: 'Aviso previo indenizado', detail: `${diasAviso} dias (Lei 12.506/2011)`, valor: avisoValor });
         }
-        // Aviso indenizado projeta data para cálculo de férias e 13º
-        dataFimContrato = new Date(demissao.getTime() + diasAviso * 24 * 60 * 60 * 1000);
-    } else if (temAviso && avisoTipo === 'trabalhado') {
-        // Trabalhado: já recebeu como salário, não entra na rescisão
-        dataFimContrato = new Date(demissao.getTime() + diasAviso * 24 * 60 * 60 * 1000);
     }
 
-    // ─── SALDO DE SALÁRIO ────────────────
-    const diasTrabMes = demissao.getDate();
-    const totalDiasMes = diasNoMes(demissao);
-    const saldoSalario = (salario / totalDiasMes) * diasTrabMes;
-    resultado.verbas.push({ label: 'Saldo de salario', detail: `${diasTrabMes}/${totalDiasMes} dias`, valor: saldoSalario, tipo: 'positivo' });
+    // ═══ SALDO DE SALÁRIO ═══
+    const diasTrab = demissao.getDate(); // dias trabalhados no mês da demissão
+    const saldoSalario = diaria * diasTrab;
+    verbas.push({ label: 'Saldo de salario', detail: `${diasTrab}/30 dias`, valor: saldoSalario });
 
-    // ─── 13º SALÁRIO PROPORCIONAL ────────
-    const meses13 = dataFimContrato.getMonth() + 1; // meses do ano até a data fim
-    // Ajustar: se trabalhou >= 15 dias no último mês, conta
-    let avos13 = meses13;
-    if (dataFimContrato.getDate() < 15) avos13--;
-    avos13 = Math.max(avos13, 0);
+    // ═══ 13º SALÁRIO ═══
+    if (tipo !== 'justa_causa') {
+        // 13º proporcional: meses do ano até a demissão (>=15 dias no mês)
+        const inicioAno = new Date(demissao.getFullYear(), 0, 1);
+        const avos13prop = contarAvos(inicioAno, demissao);
 
-    // Justa causa: não tem 13º proporcional
-    if (tipo !== 'justa_causa' && avos13 > 0) {
-        const decimo = (salario / 12) * avos13;
-        resultado.verbas.push({ label: '13o salario proporcional', detail: `${avos13}/12 avos`, valor: decimo, tipo: 'positivo' });
+        if (avos13prop > 0) {
+            const val13p = (salario / 12) * avos13prop;
+            verbas.push({ label: '13o salario proporcional', detail: `${avos13prop}/12 avos`, valor: val13p });
+        }
+
+        // 13º indenizado: meses adicionais do período do aviso
+        if (temAviso && avisoTipo === 'indenizado' && dataProjetada > demissao) {
+            const avos13total = contarAvos(inicioAno, dataProjetada);
+            const avos13ind = Math.max(avos13total - avos13prop, 0);
+            if (avos13ind > 0) {
+                const val13i = (salario / 12) * avos13ind;
+                verbas.push({ label: '13o indenizado (aviso)', detail: `${avos13ind}/12 avos`, valor: val13i });
+            }
+        }
     }
 
-    // ─── FÉRIAS PROPORCIONAIS ────────────
-    // Contar meses desde último período aquisitivo completo
-    const mesesDesdeUltAniv = diffMeses(
-        new Date(dataFimContrato.getFullYear(), admissao.getMonth(), admissao.getDate()),
-        dataFimContrato
-    );
-    let avosFerias = mesesDesdeUltAniv;
-    if (avosFerias < 0) avosFerias += 12;
-    if (avosFerias > 12) avosFerias = 12;
+    // ═══ FÉRIAS ═══
 
-    // Justa causa: sem férias proporcionais
-    if (tipo !== 'justa_causa' && avosFerias > 0) {
-        const feriasProps = (salario / 12) * avosFerias;
-        const terco = feriasProps / 3;
-        resultado.verbas.push({ label: 'Ferias proporcionais', detail: `${avosFerias}/12 avos`, valor: feriasProps, tipo: 'positivo' });
-        resultado.verbas.push({ label: '1/3 constitucional (ferias prop.)', detail: '', valor: terco, tipo: 'positivo' });
-    }
-
-    // ─── FÉRIAS VENCIDAS ─────────────────
+    // Férias vencidas
     if (feriasVencidas > 0) {
         for (let i = 0; i < feriasVencidas; i++) {
-            resultado.verbas.push({ label: `Ferias vencidas (periodo ${i + 1})`, detail: '30 dias', valor: salario, tipo: 'positivo' });
-            resultado.verbas.push({ label: `1/3 constitucional (vencidas ${i + 1})`, detail: '', valor: salario / 3, tipo: 'positivo' });
+            verbas.push({ label: `Ferias vencidas${feriasVencidas > 1 ? ` (${i + 1}o periodo)` : ''}`, detail: '30 dias', valor: salario });
+            verbas.push({ label: `1/3 sobre ferias vencidas${feriasVencidas > 1 ? ` (${i + 1}o)` : ''}`, detail: '', valor: salario / 3 });
         }
     }
 
-    // ─── TOTAL BRUTO ─────────────────────
-    resultado.totalBruto = resultado.verbas.reduce((s, v) => s + v.valor, 0);
+    // Férias proporcionais: meses desde último aniversário até demissão
+    if (tipo !== 'justa_causa') {
+        // Último aniversário do contrato antes da demissão
+        let ultAniv = new Date(demissao.getFullYear(), admissao.getMonth(), admissao.getDate());
+        if (ultAniv > demissao) ultAniv.setFullYear(ultAniv.getFullYear() - 1);
 
-    // ─── DESCONTOS ───────────────────────
+        const avosFerProp = contarAvos(ultAniv, demissao);
+        if (avosFerProp > 0) {
+            const ferProp = (salario / 12) * avosFerProp;
+            verbas.push({ label: 'Ferias proporcionais', detail: `${avosFerProp}/12 avos`, valor: ferProp });
+            verbas.push({ label: '1/3 sobre ferias proporcionais', detail: '', valor: ferProp / 3 });
+        }
 
-    // INSS sobre saldo de salário
-    const inssBase = saldoSalario; // INSS incide sobre saldo de salário
-    const inssValor = calcINSS(Math.min(inssBase, salario)); // proporcional mas limitado ao teto
-    const inssEfetivo = (inssBase / salario) * calcINSS(salario); // proporcionalizado
-    resultado.verbas.push({ label: 'INSS', detail: 'Sobre saldo de salario', valor: -Math.abs(inssEfetivo), tipo: 'negativo' });
-
-    // INSS sobre 13º
-    if (tipo !== 'justa_causa' && avos13 > 0) {
-        const decimo = (salario / 12) * avos13;
-        const inss13 = calcINSS(decimo);
-        resultado.verbas.push({ label: 'INSS sobre 13o', detail: '', valor: -inss13, tipo: 'negativo' });
-    }
-
-    // IRRF sobre saldo + férias (férias indenizadas são isentas de IRRF na rescisão)
-    const baseIRRF = saldoSalario;
-    const irrfSaldo = calcIRRF(salario, calcINSS(salario), dependentes); // simula sobre salário cheio, proporcionaliza
-    const irrfEfetivo = (baseIRRF / salario) * irrfSaldo;
-    if (irrfEfetivo > 0) {
-        resultado.verbas.push({ label: 'IRRF', detail: 'Sobre saldo de salario', valor: -irrfEfetivo, tipo: 'negativo' });
-    }
-
-    // IRRF sobre 13º (tributação exclusiva)
-    if (tipo !== 'justa_causa' && avos13 > 0) {
-        const decimo = (salario / 12) * avos13;
-        const inss13 = calcINSS(decimo);
-        const irrf13 = calcIRRF(decimo, inss13, dependentes);
-        if (irrf13 > 0) {
-            resultado.verbas.push({ label: 'IRRF sobre 13o', detail: 'Tributacao exclusiva', valor: -irrf13, tipo: 'negativo' });
+        // Férias indenizadas: meses adicionais do aviso
+        if (temAviso && avisoTipo === 'indenizado' && dataProjetada > demissao) {
+            const avosFerTotal = contarAvos(ultAniv, dataProjetada);
+            const avosFerInd = Math.max(avosFerTotal - avosFerProp, 0);
+            if (avosFerInd > 0) {
+                const ferInd = (salario / 12) * avosFerInd;
+                verbas.push({ label: 'Ferias indenizadas (aviso)', detail: `${avosFerInd}/12 avos`, valor: ferInd });
+                verbas.push({ label: '1/3 sobre ferias indenizadas', detail: '', valor: ferInd / 3 });
+            }
         }
     }
 
-    // ─── FGTS ────────────────────────────
-    // FGTS não entra no valor líquido da rescisão (é pago via Caixa)
-    // Mas calculamos a multa para informar
+    // ═══ DESCONTOS ═══
 
-    let multaFGTS = 0;
-    let fgtsSaque = false;
+    // INSS sobre salários (saldo + aviso prévio juntos)
+    const baseSalarios = saldoSalario + avisoValor;
+    const inssSaldo = calcINSS(saldoSalario);
+    const inssSalarios = calcINSS(baseSalarios);
+    const inssAviso = inssSalarios - inssSaldo;
 
+    descontos.push({ label: 'INSS sobre saldo de salario', detail: '', valor: inssSaldo });
+    if (avisoValor > 0) {
+        descontos.push({ label: 'INSS sobre aviso previo', detail: '', valor: inssAviso });
+    }
+
+    // IRRF sobre salários (base = saldo - INSS saldo)
+    // Férias rescisórias e aviso indenizado são ISENTOS de IRRF
+    const irrfSalario = calcIRRF(saldoSalario, inssSaldo, dependentes);
+    if (irrfSalario > 0) {
+        descontos.push({ label: 'IRRF sobre salarios', detail: `Base: ${formatBRL(saldoSalario)} - ${formatBRL(inssSaldo)}`, valor: irrfSalario });
+    }
+
+    // INSS e IRRF sobre 13º (tributação exclusiva na fonte)
+    if (tipo !== 'justa_causa') {
+        const inicioAno = new Date(demissao.getFullYear(), 0, 1);
+        const avos13prop = contarAvos(inicioAno, demissao);
+        const val13p = (salario / 12) * avos13prop;
+        if (val13p > 0) {
+            const inss13 = calcINSS(val13p);
+            descontos.push({ label: 'INSS sobre 13o', detail: '', valor: inss13 });
+            const irrf13 = calcIRRF(val13p, inss13, dependentes);
+            if (irrf13 > 0) {
+                descontos.push({ label: 'IRRF sobre 13o', detail: 'Tributacao exclusiva', valor: irrf13 });
+            }
+        }
+    }
+
+    // Férias: ISENTAS de INSS e IRRF na rescisão
+
+    // ═══ TOTAIS ═══
+    const totalVerbas = verbas.reduce((s, v) => s + v.valor, 0);
+    const totalDescontos = descontos.reduce((s, v) => s + v.valor, 0);
+    const totalLiquido = totalVerbas - totalDescontos;
+
+    // ═══ FGTS ═══
+    let multaFGTS = 0, fgtsSaque = false, fgtsTotal = 0;
     if (tipo === 'sem_justa_causa') {
-        multaFGTS = saldoFGTS * 0.40;
-        fgtsSaque = true;
+        multaFGTS = saldoFGTS * 0.40; fgtsSaque = true;
+        fgtsTotal = saldoFGTS + multaFGTS;
     } else if (tipo === 'acordo_mutuo') {
-        multaFGTS = saldoFGTS * 0.20;
-        fgtsSaque = true; // saque de 80% do saldo
+        multaFGTS = saldoFGTS * 0.20; fgtsSaque = true;
+        fgtsTotal = saldoFGTS * 0.8 + multaFGTS;
     } else if (tipo === 'prazo_determinado') {
-        fgtsSaque = true;
-        multaFGTS = 0;
+        fgtsSaque = true; fgtsTotal = saldoFGTS;
     }
-    // Pedido de demissão e justa causa: sem multa, sem saque
 
-    // ─── TOTAIS ──────────────────────────
-    resultado.totalDescontos = resultado.verbas.filter(v => v.valor < 0).reduce((s, v) => s + v.valor, 0);
-    resultado.totalLiquido = resultado.totalBruto + resultado.totalDescontos;
-    resultado.mesesTrab = diffMeses(admissao, demissao);
-
-    // FGTS info (não entra no líquido — pago separadamente)
-    resultado.fgts = {
-        saldo: saldoFGTS,
-        multa: multaFGTS,
-        saque: fgtsSaque,
-        total: fgtsSaque ? (tipo === 'acordo_mutuo' ? saldoFGTS * 0.8 + multaFGTS : saldoFGTS + multaFGTS) : 0,
+    return {
+        tipo, salario, admissao, demissao, dataProjetada, diasAviso,
+        anos, meses: diffMeses(admissao, demissao),
+        verbas, descontos,
+        totalVerbas, totalDescontos, totalLiquido,
+        fgts: { saldo: saldoFGTS, multa: multaFGTS, saque: fgtsSaque, total: fgtsTotal },
     };
-
-    return resultado;
 }
 
 /* ─── RENDERIZAÇÃO ────────────────────── */
@@ -299,18 +270,17 @@ const TIPO_LABELS = {
 
 function renderResultado(r) {
     const area = document.getElementById('resultArea');
+    const t = r.meses;
+    const mesesLabel = t >= 12
+        ? `${Math.floor(t / 12)} ano${Math.floor(t / 12) > 1 ? 's' : ''} e ${t % 12} mes${t % 12 !== 1 ? 'es' : ''}`
+        : `${t} mes${t !== 1 ? 'es' : ''}`;
 
-    const mesesLabel = r.mesesTrab >= 12
-        ? `${Math.floor(r.mesesTrab / 12)} ano${Math.floor(r.mesesTrab / 12) > 1 ? 's' : ''} e ${r.mesesTrab % 12} mes${r.mesesTrab % 12 !== 1 ? 'es' : ''}`
-        : `${r.mesesTrab} mes${r.mesesTrab !== 1 ? 'es' : ''}`;
-
-    const verbasPos = r.verbas.filter(v => v.valor >= 0);
-    const verbasNeg = r.verbas.filter(v => v.valor < 0);
+    const fmtData = d => d.toLocaleDateString('pt-BR');
 
     area.innerHTML = `
         <div class="result-header">
             <span class="result-tipo">${TIPO_LABELS[r.tipo]}</span>
-            <span class="result-periodo">${mesesLabel} de contrato</span>
+            <span class="result-periodo">${mesesLabel}</span>
         </div>
 
         <div class="info-row">
@@ -323,8 +293,8 @@ function renderResultado(r) {
                 <div class="info-box-value">${r.diasAviso} dias</div>
             </div>
             <div class="info-box-sm">
-                <div class="info-box-label">Tempo</div>
-                <div class="info-box-value">${r.anosComp} ano${r.anosComp !== 1 ? 's' : ''}</div>
+                <div class="info-box-label">Data projetada</div>
+                <div class="info-box-value" style="font-size:.82rem">${fmtData(r.dataProjetada)}</div>
             </div>
         </div>
 
@@ -335,47 +305,48 @@ function renderResultado(r) {
 
         <div class="verbas-section">
             <div class="verbas-title">Verbas Rescisorias</div>
-            ${verbasPos.map(v => `
+            ${r.verbas.map(v => `
                 <div class="verba-row">
                     <div><div class="verba-label">${v.label}</div>${v.detail ? `<div class="verba-detail">${v.detail}</div>` : ''}</div>
                     <div class="verba-valor positivo">${formatBRL(v.valor)}</div>
                 </div>
             `).join('')}
             <div class="verba-row total">
-                <div class="verba-label">Total bruto</div>
-                <div class="verba-valor positivo">${formatBRL(r.totalBruto)}</div>
+                <div class="verba-label">Total de vencimentos</div>
+                <div class="verba-valor positivo">${formatBRL(r.totalVerbas)}</div>
             </div>
         </div>
 
         <div class="verbas-section">
             <div class="verbas-title">Descontos</div>
-            ${verbasNeg.map(v => `
+            ${r.descontos.map(v => `
                 <div class="verba-row">
                     <div><div class="verba-label">${v.label}</div>${v.detail ? `<div class="verba-detail">${v.detail}</div>` : ''}</div>
-                    <div class="verba-valor negativo">${formatBRL(Math.abs(v.valor))}</div>
+                    <div class="verba-valor negativo">${formatBRL(v.valor)}</div>
                 </div>
             `).join('')}
+            ${r.descontos.length === 0 ? '<div class="verba-row"><div class="verba-label">Nenhum desconto</div><div class="verba-valor neutro">R$ 0,00</div></div>' : ''}
             <div class="verba-row total">
-                <div class="verba-label">Total descontos</div>
-                <div class="verba-valor negativo">${formatBRL(Math.abs(r.totalDescontos))}</div>
+                <div class="verba-label">Total de descontos</div>
+                <div class="verba-valor negativo">${formatBRL(r.totalDescontos)}</div>
             </div>
         </div>
 
         ${r.fgts.saldo > 0 ? `
         <div class="verbas-section">
-            <div class="verbas-title">FGTS (pago via Caixa)</div>
+            <div class="verbas-title">FGTS (pago via Caixa Economica)</div>
             <div class="verba-row">
                 <div class="verba-label">Saldo FGTS informado</div>
                 <div class="verba-valor neutro">${formatBRL(r.fgts.saldo)}</div>
             </div>
             ${r.fgts.multa > 0 ? `
             <div class="verba-row">
-                <div><div class="verba-label">Multa rescisoria</div><div class="verba-detail">${r.tipo === 'acordo_mutuo' ? '20% (acordo)' : '40%'}</div></div>
+                <div><div class="verba-label">Multa rescisoria</div><div class="verba-detail">${r.tipo === 'acordo_mutuo' ? '20% (acordo mutuo)' : '40%'}</div></div>
                 <div class="verba-valor positivo">${formatBRL(r.fgts.multa)}</div>
             </div>` : ''}
             <div class="verba-row">
                 <div class="verba-label">Direito a saque</div>
-                <div class="verba-valor ${r.fgts.saque ? 'positivo' : 'negativo'}">${r.fgts.saque ? 'Sim' : 'Nao'}</div>
+                <div class="verba-valor ${r.fgts.saque ? 'positivo' : 'negativo'}">${r.fgts.saque ? (r.tipo === 'acordo_mutuo' ? 'Sim (80%)' : 'Sim (100%)') : 'Nao'}</div>
             </div>
             ${r.fgts.saque ? `
             <div class="verba-row total">
@@ -385,8 +356,16 @@ function renderResultado(r) {
         </div>` : ''}
 
         <div class="result-total-card" style="border-left-color: var(--accent-teal);">
-            <div class="result-total-label">Total geral (rescisao + FGTS)</div>
+            <div class="result-total-label">Total geral (rescisao${r.fgts.total > 0 ? ' + FGTS' : ''})</div>
             <div class="result-total-value">${formatBRL(r.totalLiquido + r.fgts.total)}</div>
+        </div>
+
+        <div class="verbas-section" style="font-size:.72rem;color:var(--text-muted);border:none;background:none;padding:8px 0">
+            Memoria de calculo: salario/30 = ${formatBRL(r.salario / 30)}/dia &middot;
+            Admissao: ${fmtData(r.admissao)} &middot;
+            Demissao: ${fmtData(r.demissao)} &middot;
+            Projecao aviso: ${fmtData(r.dataProjetada)} &middot;
+            ${r.anos} ano${r.anos !== 1 ? 's' : ''} completo${r.anos !== 1 ? 's' : ''}
         </div>
     `;
 }
@@ -394,7 +373,7 @@ function renderResultado(r) {
 /* ─── EVENTOS ─────────────────────────── */
 
 function init() {
-    // Theme toggle
+    // Theme
     const saved = localStorage.getItem('theme');
     if (saved) document.documentElement.setAttribute('data-theme', saved);
     document.getElementById('themeToggle').addEventListener('click', () => {
@@ -405,7 +384,7 @@ function init() {
         document.getElementById('themeToggle').textContent = isDark ? '\u263E' : '\u2606';
     });
 
-    // Máscara de moeda nos inputs
+    // Máscara de moeda
     ['salario', 'saldoFGTS'].forEach(id => {
         const el = document.getElementById(id);
         el.addEventListener('input', () => {
@@ -416,22 +395,18 @@ function init() {
         });
     });
 
-    // Data padrão: admissão 2 anos atrás, demissão hoje
+    // Datas padrão
     const hoje = new Date();
     const doisAnos = new Date(hoje.getFullYear() - 2, hoje.getMonth(), hoje.getDate());
     document.getElementById('dataDemissao').value = hoje.toISOString().slice(0, 10);
     document.getElementById('dataAdmissao').value = doisAnos.toISOString().slice(0, 10);
 
-    // Tipo de rescisão muda opções de aviso prévio
+    // Tipo de rescisão controla aviso prévio
     document.getElementById('tipoRescisao').addEventListener('change', () => {
         const tipo = document.getElementById('tipoRescisao').value;
         const avisoEl = document.getElementById('avisoTipo');
-        if (tipo === 'justa_causa' || tipo === 'prazo_determinado') {
-            avisoEl.value = 'dispensado';
-            avisoEl.disabled = true;
-        } else {
-            avisoEl.disabled = false;
-        }
+        avisoEl.disabled = (tipo === 'justa_causa' || tipo === 'prazo_determinado');
+        if (avisoEl.disabled) avisoEl.value = 'dispensado';
     });
 
     // Calcular
@@ -446,13 +421,12 @@ function init() {
         const dependentes = parseInt(document.getElementById('dependentes').value) || 0;
 
         if (!salario || salario <= 0) { alert('Informe o salario bruto.'); return; }
-        if (isNaN(admissao.getTime()) || isNaN(demissao.getTime())) { alert('Informe as datas corretamente.'); return; }
-        if (demissao <= admissao) { alert('A data de demissao deve ser posterior a admissao.'); return; }
+        if (isNaN(admissao.getTime()) || isNaN(demissao.getTime())) { alert('Informe as datas.'); return; }
+        if (demissao <= admissao) { alert('Data de demissao deve ser posterior a admissao.'); return; }
 
-        const resultado = calcularRescisao({ salario, admissao, demissao, tipo, avisoTipo, saldoFGTS, feriasVencidas, dependentes });
-        renderResultado(resultado);
+        const r = calcularRescisao({ salario, admissao, demissao, tipo, avisoTipo, saldoFGTS, feriasVencidas, dependentes });
+        renderResultado(r);
 
-        // Scroll suave até o resultado em mobile
         if (window.innerWidth <= 800) {
             document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }

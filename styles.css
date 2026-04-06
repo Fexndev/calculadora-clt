@@ -447,57 +447,57 @@ body {
     .calculated .layout { display: block !important; }
     .result-area { display: block !important; }
 
-    /* Título compacto */
+    /* Título */
     .result-area::before {
         content: 'Simulacao de Rescisao CLT — 2026';
-        display: block; font-size: 16pt; font-weight: 800; color: #1f2328;
-        margin-bottom: 2px;
+        display: block; font-size: 18pt; font-weight: 800; color: #1f2328;
+        margin-bottom: 4px;
     }
 
-    /* Header resultado — inline com título */
-    .result-header { margin-bottom: 8px; padding-bottom: 6px; border-bottom: 2px solid #0d9488; }
-    .result-tipo { font-size: 6.5pt; padding: 2px 6px; background: #e0f2f1 !important; color: #0d9488 !important; }
-    .result-periodo { font-size: 7.5pt; }
+    /* Header resultado */
+    .result-header { margin-bottom: 14px; padding-bottom: 8px; border-bottom: 2px solid #0d9488; }
+    .result-tipo { font-size: 7pt; padding: 2px 8px; background: #e0f2f1 !important; color: #0d9488 !important; }
+    .result-periodo { font-size: 8pt; }
 
-    /* Info boxes — compactos em linha */
-    .info-row { display: flex !important; flex-direction: row !important; gap: 8px; margin-bottom: 8px; }
-    .info-box-sm { flex: 1; padding: 5px 8px; border: 1px solid #d0d7de; border-radius: 4px; }
-    .info-box-label { font-size: 5.5pt; }
-    .info-box-value { font-size: 9pt; }
+    /* Info boxes */
+    .info-row { display: flex !important; flex-direction: row !important; gap: 10px; margin-bottom: 16px; }
+    .info-box-sm { flex: 1; padding: 10px 12px; border: 1px solid #d0d7de; border-radius: 6px; }
+    .info-box-label { font-size: 6pt; }
+    .info-box-value { font-size: 10pt; }
 
-    /* Total principal — full width */
-    .result-total-card { padding: 10px 14px; margin-bottom: 8px; border-left: 3px solid #0d9488 !important; border-color: #d0d7de; width: 100%; }
-    .result-total-label { font-size: 6pt; margin-bottom: 1px; color: #656d76; }
-    .result-total-value { font-size: 20pt !important; color: #1a7f37 !important; }
+    /* Total principal */
+    .result-total-card { padding: 16px 18px; margin-bottom: 16px; border-left: 4px solid #0d9488 !important; border-color: #d0d7de; width: 100%; }
+    .result-total-label { font-size: 7pt; margin-bottom: 2px; color: #656d76; }
+    .result-total-value { font-size: 22pt !important; color: #1a7f37 !important; }
 
-    /* Verbas e descontos — ultra compactos */
-    .result-grid { display: grid !important; grid-template-columns: 3fr 2fr !important; gap: 8px; margin-bottom: 6px; }
-    .verbas-section { padding: 6px 8px; margin-bottom: 0; border: 1px solid #d0d7de; border-radius: 4px; }
-    .verbas-title { font-size: 6pt; margin-bottom: 3px; color: #656d76; }
-    .verba-row { padding: 2.5px 0; gap: 6px; border-bottom: 1px solid #f0f0f0; }
-    .verba-label { font-size: 7pt !important; color: #1f2328; }
-    .verba-detail { font-size: 5pt; color: #8b949e; }
-    .verba-valor { font-size: 7pt !important; }
+    /* Verbas e descontos */
+    .result-grid { display: grid !important; grid-template-columns: 3fr 2fr !important; gap: 10px; margin-bottom: 12px; }
+    .verbas-section { padding: 10px 12px; margin-bottom: 0; border: 1px solid #d0d7de; border-radius: 6px; }
+    .verbas-title { font-size: 6.5pt; margin-bottom: 5px; color: #656d76; }
+    .verba-row { padding: 3.5px 0; gap: 8px; border-bottom: 1px solid #f0f0f0; }
+    .verba-label { font-size: 7.5pt !important; color: #1f2328; }
+    .verba-detail { font-size: 5.5pt; color: #8b949e; }
+    .verba-valor { font-size: 7.5pt !important; }
     .verba-valor.positivo { color: #1a7f37 !important; }
     .verba-valor.negativo { color: #cf222e !important; }
     .verba-valor.neutro { color: #1f2328 !important; }
-    .verba-row.total { padding-top: 4px; margin-top: 1px; border-top: 1px solid #bbb; }
-    .verba-row.total .verba-label { font-size: 7.5pt !important; }
-    .verba-row.total .verba-valor { font-size: 8pt !important; }
+    .verba-row.total { padding-top: 5px; margin-top: 2px; border-top: 1.5px solid #bbb; }
+    .verba-row.total .verba-label { font-size: 8pt !important; }
+    .verba-row.total .verba-valor { font-size: 8.5pt !important; }
 
-    /* Gráfico — largura total, altura generosa */
+    /* Gráfico */
     .proj-card {
-        display: block !important; padding: 8px 10px; margin-top: 8px;
-        border: 1px solid #d0d7de; border-radius: 4px;
+        display: block !important; padding: 12px 14px; margin-top: 14px;
+        border: 1px solid #d0d7de; border-radius: 6px;
         page-break-inside: avoid; width: 100%;
     }
-    .proj-title { font-size: 7.5pt; font-weight: 700; margin-bottom: 4px; color: #1f2328; }
+    .proj-title { font-size: 8pt; font-weight: 700; margin-bottom: 6px; color: #1f2328; }
     .proj-subtitle { display: none !important; }
-    .proj-chart { height: 170px !important; width: 100% !important; overflow: visible !important; }
-    .proj-chart canvas { height: 170px !important; width: 100% !important; }
+    .proj-chart { height: 190px !important; width: 100% !important; overflow: visible !important; }
+    .proj-chart canvas { height: 190px !important; width: 100% !important; }
 
     /* Memória de cálculo */
-    .result-meta { display: block !important; font-size: 5.5pt; color: #8b949e; padding: 4px 0 0; margin-top: 4px; }
+    .result-meta { display: block !important; font-size: 6pt; color: #8b949e; padding: 6px 0 0; margin-top: 8px; border-top: 1px solid #eee; }
 }
 
 @media (max-width: 480px) {

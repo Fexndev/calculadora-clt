@@ -434,49 +434,50 @@ body {
    ═══════════════════════════════════════ */
 
 @media print {
-    @page { size: A4 portrait; margin: 14mm 16mm; }
+    @page { size: A4 portrait; margin: 18mm 18mm; }
     * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-    body { background: #fff !important; color: #1f2328 !important; font-size: 9pt !important; line-height: 1.45 !important; }
+    body { background: #fff !important; color: #1f2328 !important; font-size: 9pt !important; line-height: 1.5 !important; }
 
     /* Ocultar UI */
     .header, .form-card, .btn-imprimir, .btn-calcular, .legal-note, .footer,
     .proj-fgts-inline, .proj-disclaimer, .intro { display: none !important; }
 
+    /* Centralizar verticalmente */
+    #app { display: flex; flex-direction: column; justify-content: center; min-height: 100vh; }
     .main { max-width: none !important; padding: 0 !important; margin: 0 !important; }
     .calculated .layout { display: block !important; }
     .result-area { display: block !important; }
 
-    /* Título impresso — grande e respirado */
+    /* Título */
     .result-area::before {
         content: 'Simulacao de Rescisao CLT';
-        display: block; font-size: 20pt; font-weight: 800; margin-bottom: 2px;
-        color: #1f2328;
+        display: block; font-size: 22pt; font-weight: 800; color: #1f2328;
     }
     .result-area::after {
         content: 'Tabelas INSS e IRRF atualizadas para 2026';
-        display: block; font-size: 8pt; color: #8b949e; margin-bottom: 14px;
-        padding-bottom: 10px; border-bottom: 2px solid #0d9488;
+        display: block; font-size: 8pt; color: #8b949e;
+        margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #0d9488;
     }
 
     /* Header resultado */
-    .result-header { margin-bottom: 10px; }
+    .result-header { margin-bottom: 12px; }
     .result-tipo { font-size: 7pt; padding: 2px 8px; background: #e0f2f1 !important; color: #0d9488 !important; }
-    .result-periodo { font-size: 8pt; }
+    .result-periodo { font-size: 9pt; }
 
-    /* Info boxes — em linha, respirados */
-    .info-row { display: flex !important; flex-direction: row !important; gap: 10px; margin-bottom: 14px; }
-    .info-box-sm { flex: 1; padding: 8px 10px; border: 1px solid #d0d7de; border-radius: 6px; }
+    /* Info boxes */
+    .info-row { display: flex !important; flex-direction: row !important; gap: 10px; margin-bottom: 16px; }
+    .info-box-sm { flex: 1; padding: 10px 12px; border: 1px solid #d0d7de; border-radius: 6px; }
     .info-box-label { font-size: 6pt; }
-    .info-box-value { font-size: 10pt; }
+    .info-box-value { font-size: 11pt; }
 
-    /* Total principal — destaque */
-    .result-total-card { padding: 14px 16px; margin-bottom: 14px; border-left: 4px solid #0d9488 !important; border-color: #d0d7de; }
+    /* Total principal */
+    .result-total-card { padding: 16px 18px; margin-bottom: 16px; border-left: 4px solid #0d9488 !important; border-color: #d0d7de; }
     .result-total-label { font-size: 7pt; margin-bottom: 2px; color: #656d76; }
-    .result-total-value { font-size: 22pt !important; color: #1a7f37 !important; }
+    .result-total-value { font-size: 24pt !important; color: #1a7f37 !important; }
 
-    /* Verbas e descontos — respirados */
-    .result-grid { display: grid !important; grid-template-columns: 3fr 2fr !important; gap: 10px; margin-bottom: 10px; }
-    .verbas-section { padding: 10px 12px; margin-bottom: 0; border: 1px solid #d0d7de; border-radius: 6px; }
+    /* Verbas e descontos */
+    .result-grid { display: grid !important; grid-template-columns: 3fr 2fr !important; gap: 12px; margin-bottom: 12px; }
+    .verbas-section { padding: 12px 14px; margin-bottom: 0; border: 1px solid #d0d7de; border-radius: 6px; }
     .verbas-title { font-size: 7pt; margin-bottom: 6px; color: #656d76; }
     .verba-row { padding: 4px 0; gap: 8px; border-bottom: 1px solid #f0f0f0; }
     .verba-label { font-size: 8pt !important; color: #1f2328; }
@@ -486,22 +487,22 @@ body {
     .verba-valor.negativo { color: #cf222e !important; }
     .verba-valor.neutro { color: #1f2328 !important; }
     .verba-row.total { padding-top: 6px; margin-top: 2px; border-top: 1.5px solid #bbb; }
-    .verba-row.total .verba-label { font-size: 8pt !important; }
-    .verba-row.total .verba-valor { font-size: 9pt !important; }
+    .verba-row.total .verba-label { font-size: 9pt !important; }
+    .verba-row.total .verba-valor { font-size: 10pt !important; }
 
-    /* Gráfico de projeção — mais alto e visível */
+    /* Gráfico — proporção 3:1 para não achatar */
     .proj-card {
-        display: block !important; padding: 10px 12px; margin-top: 10px;
+        display: block !important; padding: 12px 14px; margin-top: 12px;
         border: 1px solid #d0d7de; border-radius: 6px;
         break-inside: avoid; page-break-inside: avoid;
     }
-    .proj-title { font-size: 8pt; margin-bottom: 2px; color: #1f2328; }
-    .proj-subtitle { font-size: 6pt; margin-bottom: 6px; color: #656d76; }
-    .proj-chart { height: 180px !important; }
-    .proj-chart canvas { max-height: 180px !important; }
+    .proj-title { font-size: 9pt; font-weight: 700; margin-bottom: 2px; color: #1f2328; }
+    .proj-subtitle { display: none !important; }
+    .proj-chart { height: 150px !important; aspect-ratio: 4 / 1; }
+    .proj-chart canvas { max-height: 150px !important; width: 100% !important; }
 
     /* Memória de cálculo */
-    .result-meta { display: block !important; font-size: 6pt; color: #8b949e; padding: 6px 0 0; margin-top: 6px; border-top: 1px solid #eee; }
+    .result-meta { display: block !important; font-size: 6pt; color: #8b949e; padding: 8px 0 0; margin-top: 8px; border-top: 1px solid #eee; }
 }
 
 @media (max-width: 480px) {

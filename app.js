@@ -451,6 +451,7 @@ function renderProjecao(params) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            devicePixelRatio: 3,
             layout: { padding: { top: 28 } },
             plugins: {
                 legend: { display: false },

@@ -87,27 +87,24 @@ body {
    ═══════════════════════════════════════ */
 
 .intro {
-    text-align: center; margin-bottom: 32px; padding-top: 20px;
+    margin-bottom: 32px; padding-top: 16px;
     transition: all .5s ease;
 }
 .intro h1 {
-    font-size: 1.6rem; font-weight: 800; margin-bottom: 8px;
-    justify-content: center;
+    font-size: 1.8rem; font-weight: 800; margin-bottom: 8px;
     display: flex; align-items: center; gap: 10px;
 }
 .intro h1::before {
-    content: ''; width: 4px; height: 24px;
+    content: ''; width: 4px; height: 28px;
     background: var(--accent-teal); border-radius: 2px; flex-shrink: 0;
 }
-.intro p { font-size: .88rem; color: var(--text-secondary); max-width: 520px; margin: 0 auto; }
+.intro p { font-size: .9rem; color: var(--text-secondary); }
 
 /* Após calcular */
-.calculated .intro {
-    text-align: left; padding-top: 0; margin-bottom: 20px;
-}
-.calculated .intro h1 { font-size: 1.2rem; justify-content: flex-start; }
+.calculated .intro { margin-bottom: 20px; padding-top: 0; }
+.calculated .intro h1 { font-size: 1.2rem; }
 .calculated .intro h1::before { height: 20px; }
-.calculated .intro p { margin: 0; max-width: none; }
+.calculated .intro p { font-size: .82rem; }
 
 /* ═══════════════════════════════════════
    LAYOUT — dois estados
@@ -206,6 +203,23 @@ body {
 .form-fields .field { margin-bottom: 0; }
 
 .calculated .form-fields { grid-template-columns: 1fr 1fr; gap: 8px 12px; }
+
+/* Toggle group (férias vencidas) */
+.toggle-group {
+    display: flex; gap: 0; border-radius: var(--radius-sm); overflow: hidden;
+    border: 1px solid var(--border);
+}
+.toggle-btn {
+    flex: 1; padding: 9px 8px; border: none;
+    background: var(--bg-card); color: var(--text-muted);
+    font-family: var(--font-sans); font-size: .78rem; font-weight: 600;
+    cursor: pointer; transition: all .15s;
+    border-right: 1px solid var(--border);
+}
+.toggle-btn:last-child { border-right: none; }
+.toggle-btn:hover { color: var(--text-primary); background: var(--bg-card-hover); }
+.toggle-btn.active { background: var(--accent-teal); color: var(--bg-page); }
+.calculated .toggle-btn { padding: 6px 4px; font-size: .7rem; }
 
 .btn-calcular {
     width: 100%; padding: 14px; margin-top: 4px;

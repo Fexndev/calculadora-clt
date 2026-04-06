@@ -511,11 +511,13 @@ function init() {
         });
     });
 
-    // Datas padrão
+    // Datas e valores padrão
     const hoje = new Date();
-    const doisAnos = new Date(hoje.getFullYear() - 2, hoje.getMonth(), hoje.getDate());
-    document.getElementById('dataDemissao').value = hoje.toISOString().slice(0, 10);
-    document.getElementById('dataAdmissao').value = doisAnos.toISOString().slice(0, 10);
+    const mesSeguinte = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 7);
+    document.getElementById('dataAdmissao').value = '2023-03-06';
+    document.getElementById('dataDemissao').value = mesSeguinte.toISOString().slice(0, 10);
+    document.getElementById('salario').value = '5.631,00';
+    document.getElementById('saldoFGTS').value = '15.000,00';
 
     // Tipo de rescisão controla aviso prévio
     document.getElementById('tipoRescisao').addEventListener('change', () => {
@@ -526,6 +528,17 @@ function init() {
     });
 
     // Calcular
+    // Toggle group (férias vencidas)
+    document.querySelectorAll('.toggle-group').forEach(group => {
+        group.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                group.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                group.dataset.value = btn.dataset.val;
+            });
+        });
+    });
+
     // Botão editar: volta ao estado inicial
     document.getElementById('btnEditar').addEventListener('click', () => {
         document.querySelector('.main').classList.remove('calculated');
@@ -541,7 +554,7 @@ function init() {
         const tipo = document.getElementById('tipoRescisao').value;
         const avisoTipo = document.getElementById('avisoTipo').value;
         const saldoFGTS = parseBRL(document.getElementById('saldoFGTS').value);
-        const feriasVencidas = parseInt(document.getElementById('feriasVencidas').value) || 0;
+        const feriasVencidas = parseInt(document.getElementById('feriasVencidas').dataset.value) || 0;
         const dependentes = parseInt(document.getElementById('dependentes').value) || 0;
 
         if (!salario || salario <= 0) { alert('Informe o salario bruto.'); return; }

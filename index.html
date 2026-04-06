@@ -74,12 +74,12 @@
                             <input type="text" id="saldoFGTS" inputmode="decimal" placeholder="12.000,00">
                         </div>
                         <div class="field">
-                            <label for="feriasVencidas">Ferias vencidas?</label>
-                            <select id="feriasVencidas">
-                                <option value="0">Nao</option>
-                                <option value="1">Sim — 1 periodo</option>
-                                <option value="2">Sim — 2 periodos</option>
-                            </select>
+                            <label>Ferias vencidas?</label>
+                            <div class="toggle-group" id="feriasVencidas" data-value="0">
+                                <button type="button" class="toggle-btn active" data-val="0">Nao</button>
+                                <button type="button" class="toggle-btn" data-val="1">1 periodo</button>
+                                <button type="button" class="toggle-btn" data-val="2">2 periodos</button>
+                            </div>
                         </div>
                         <div class="field">
                             <label for="dependentes">Dependentes (IRRF)</label>

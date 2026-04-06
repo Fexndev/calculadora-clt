@@ -434,20 +434,66 @@ body {
    ═══════════════════════════════════════ */
 
 @media print {
-    body { background: #fff; color: #1f2328; }
-    .header, .form-card, .btn-imprimir, .btn-calcular, .proj-card, .legal-note, .footer { display: none !important; }
-    .main { max-width: none; padding: 0; }
-    .calculated .layout { grid-template-columns: 1fr; }
-    .result-area { display: block !important; }
-    .result-grid { grid-template-columns: 1fr 1fr; }
-    .result-total-card { border-color: #5eead4; }
-    .result-total-value { color: #1a7f37; }
-    .verba-valor.positivo { color: #1a7f37; }
-    .verba-valor.negativo { color: #cf222e; }
-    .verbas-section { border-color: #d0d7de; break-inside: avoid; }
-    .info-box-sm { border-color: #d0d7de; }
-    .result-meta { display: block; color: #656d76; }
+    @page { size: A4; margin: 12mm 14mm; }
     * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { background: #fff !important; color: #1f2328 !important; font-size: 9pt; line-height: 1.4; }
+
+    /* Ocultar UI interativa */
+    .header, .form-card, .btn-imprimir, .btn-calcular, .legal-note, .footer,
+    .proj-fgts-inline, .proj-disclaimer, .intro { display: none !important; }
+
+    .main { max-width: none; padding: 0; }
+    .calculated .layout { grid-template-columns: 1fr; gap: 0; }
+    .result-area { display: block !important; }
+
+    /* Título impresso */
+    .result-area::before {
+        content: 'Simulacao de Rescisao CLT — 2026';
+        display: block; font-size: 14pt; font-weight: 800; margin-bottom: 6px;
+        border-bottom: 2px solid #5eead4; padding-bottom: 4px;
+    }
+
+    /* Info boxes em linha */
+    .info-row { gap: 6px; margin-bottom: 8px; }
+    .info-box-sm { padding: 6px 8px; border-color: #d0d7de; }
+    .info-box-label { font-size: 6pt; }
+    .info-box-value { font-size: 9pt; }
+
+    /* Header do resultado compacto */
+    .result-header { margin-bottom: 6px; }
+    .result-tipo { font-size: 7pt; padding: 2px 6px; background: #e0f2f1; color: #0d9488; }
+    .result-periodo { font-size: 8pt; }
+
+    /* Total principal compacto */
+    .result-total-card { padding: 10px 12px; margin-bottom: 8px; border-color: #5eead4; }
+    .result-total-label { font-size: 7pt; margin-bottom: 1px; color: #656d76; }
+    .result-total-value { font-size: 16pt; color: #1a7f37; }
+
+    /* Verbas e descontos lado a lado, compactos */
+    .result-grid { grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 6px; }
+    .verbas-section { padding: 8px 10px; margin-bottom: 0; border-color: #d0d7de; break-inside: avoid; }
+    .verbas-title { font-size: 7pt; margin-bottom: 4px; color: #656d76; }
+    .verba-row { padding: 3px 0; gap: 6px; border-bottom-color: #eee; }
+    .verba-label { font-size: 8pt; color: #1f2328; }
+    .verba-detail { font-size: 6pt; color: #8b949e; }
+    .verba-valor { font-size: 8pt; }
+    .verba-valor.positivo { color: #1a7f37 !important; }
+    .verba-valor.negativo { color: #cf222e !important; }
+    .verba-row.total { padding-top: 4px; margin-top: 2px; border-top: 1px solid #ccc; }
+    .verba-row.total .verba-label { font-size: 8pt; }
+    .verba-row.total .verba-valor { font-size: 9pt; }
+
+    /* FGTS section */
+    .verbas-section:has(.verba-label:first-child) { break-inside: avoid; }
+
+    /* Gráfico de projeção — incluído e compacto */
+    .proj-card { padding: 8px 10px; margin-top: 6px; border-color: #d0d7de; break-inside: avoid; page-break-inside: avoid; }
+    .proj-title { font-size: 8pt; margin-bottom: 2px; }
+    .proj-subtitle { font-size: 6pt; margin-bottom: 6px; }
+    .proj-chart { height: 140px !important; }
+
+    /* Memória de cálculo */
+    .result-meta { display: block; font-size: 6pt; color: #8b949e; padding: 4px 0 0; }
 }
 
 @media (max-width: 480px) {

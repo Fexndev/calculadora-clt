@@ -17,13 +17,15 @@
 <body>
     <div id="app">
         <header class="header">
-            <div class="header-left">
-                <div class="header-logo"><span>CLT</span> Rescisão</div>
-                <span class="header-badge">2026</span>
-            </div>
-            <div class="header-right">
-                <span class="header-timestamp">INSS/IRRF atualizados</span>
-                <button class="theme-toggle" id="themeToggle" aria-label="Alternar tema">&#9788;</button>
+            <div class="header-inner">
+                <div class="header-left">
+                    <div class="header-logo"><span>CLT</span> Rescisao</div>
+                    <span class="header-badge">2026</span>
+                </div>
+                <div class="header-right">
+                    <span class="header-timestamp">INSS/IRRF atualizados</span>
+                    <button class="theme-toggle" id="themeToggle" aria-label="Alternar tema">&#9788;</button>
+                </div>
             </div>
         </header>
 
@@ -34,7 +36,6 @@
             </div>
 
             <div class="layout">
-                <!-- FORMULÁRIO -->
                 <div class="form-card card">
                     <div class="card-title">Dados do Contrato</div>
 
@@ -95,7 +96,6 @@
                     <button class="btn-calcular" id="btnCalcular">Calcular Rescisao</button>
                 </div>
 
-                <!-- RESULTADO -->
                 <div class="result-area" id="resultArea">
                     <div class="result-placeholder">
                         <div class="result-icon">$</div>
@@ -104,17 +104,22 @@
                 </div>
             </div>
 
+            <div id="projecaoArea"></div>
+
             <div class="legal-note">
                 <strong>Aviso:</strong> Esta calculadora e uma ferramenta de simulacao. Os valores sao aproximados e podem variar conforme convencao coletiva, adicionais e particularidades do contrato. Consulte um contador ou advogado trabalhista para valores exatos.
             </div>
         </main>
 
         <footer class="footer">
-            Tabelas INSS e IRRF atualizadas para 2026 &mdash; Legislacao: CLT + Reforma Trabalhista (Lei 13.467/2017)<br>
-            <a href="https://github.com/Fexndev/calculadora-clt" target="_blank">GitHub</a>
+            <div class="footer-inner">
+                Tabelas INSS e IRRF atualizadas para 2026 &mdash; Legislacao: CLT + Reforma Trabalhista (Lei 13.467/2017)<br>
+                <a href="https://github.com/Fexndev/calculadora-clt" target="_blank">GitHub</a>
+            </div>
         </footer>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

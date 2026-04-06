@@ -69,6 +69,7 @@ function calcIRRF(salarioBruto, inss, dependentes = 0) {
 /* ─── UTILITÁRIOS ─────────────────────── */
 
 function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
+function addMonths(d, n) { const r = new Date(d); r.setMonth(r.getMonth() + n); return r; }
 
 function anosCompletos(adm, dem) {
     let a = dem.getFullYear() - adm.getFullYear();
@@ -372,6 +373,107 @@ function renderResultado(r) {
 
 /* ─── EVENTOS ─────────────────────────── */
 
+/* ─── PROJEÇÃO 12 MESES ──────────────── */
+
+const MESES_CURTO = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+let _projChart = null;
+
+function calcularProjecao(params) {
+    const pontos = [];
+    for (let m = 0; m <= 12; m++) {
+        const demProj = addMonths(params.demissao, m);
+        const r = calcularRescisao({ ...params, demissao: demProj });
+        const label = MESES_CURTO[demProj.getMonth()] + '/' + demProj.getFullYear();
+        pontos.push({ mes: m, valor: r.totalLiquido, fgts: r.fgts.total, label });
+    }
+    return pontos;
+}
+
+function renderProjecao(params) {
+    const area = document.getElementById('projecaoArea');
+    if (!area || typeof Chart === 'undefined') return;
+
+    const pontos = calcularProjecao(params);
+
+    area.innerHTML = `
+        <div class="proj-card">
+            <div class="proj-title">Projecao de Rescisao — Proximos 12 Meses</div>
+            <div class="proj-subtitle">Simulacao do valor liquido se a demissao ocorrer nos proximos meses, mantendo os mesmos parametros.</div>
+            <div class="proj-chart"><canvas id="projCanvas"></canvas></div>
+        </div>
+    `;
+
+    const ctx = document.getElementById('projCanvas');
+    if (!ctx) return;
+
+    if (_projChart) { _projChart.destroy(); _projChart = null; }
+
+    const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim();
+    const mutedColor = getComputedStyle(document.documentElement).getPropertyValue('--text-muted').trim();
+    const borderColor = getComputedStyle(document.documentElement).getPropertyValue('--border').trim();
+
+    _projChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: pontos.map(p => p.label),
+            datasets: [
+                {
+                    label: 'Rescisao liquida',
+                    data: pontos.map(p => p.valor),
+                    borderColor: '#5eead4',
+                    backgroundColor: 'rgba(94,234,212,.08)',
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#5eead4',
+                    borderWidth: 2,
+                },
+                {
+                    label: 'FGTS (saldo + multa)',
+                    data: pontos.map(p => p.fgts),
+                    borderColor: '#58a6ff',
+                    backgroundColor: 'transparent',
+                    tension: 0.3,
+                    pointRadius: 3,
+                    pointBackgroundColor: '#58a6ff',
+                    borderWidth: 1.5,
+                    borderDash: [5, 3],
+                },
+            ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: {
+                    labels: { color: textColor, font: { family: "'Inter'", size: 11 }, boxWidth: 12, padding: 16 },
+                },
+                tooltip: {
+                    backgroundColor: '#161b22',
+                    borderColor: '#30363d',
+                    borderWidth: 1,
+                    titleFont: { family: "'Inter'", size: 12 },
+                    bodyFont: { family: "'JetBrains Mono'", size: 11 },
+                    callbacks: {
+                        label: ctx => '  ' + ctx.dataset.label + ': ' + formatBRL(ctx.parsed.y),
+                    },
+                },
+            },
+            scales: {
+                x: {
+                    ticks: { color: mutedColor, font: { size: 10 } },
+                    grid: { display: false },
+                    border: { display: false },
+                },
+                y: { display: false },
+            },
+        },
+    });
+}
+
+/* ─── EVENTOS ─────────────────────────── */
+
 function init() {
     // Theme
     const saved = localStorage.getItem('theme');
@@ -425,9 +527,11 @@ function init() {
         if (demissao <= admissao) { alert('Data de demissao deve ser posterior a admissao.'); return; }
 
         const r = calcularRescisao({ salario, admissao, demissao, tipo, avisoTipo, saldoFGTS, feriasVencidas, dependentes });
+        const calcParams = { salario, admissao, demissao, tipo, avisoTipo, saldoFGTS, feriasVencidas, dependentes };
         renderResultado(r);
+        renderProjecao(calcParams);
 
-        if (window.innerWidth <= 800) {
+        if (window.innerWidth <= 768) {
             document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     });

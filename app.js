@@ -535,13 +535,6 @@ function init() {
         });
     });
 
-    // Botão editar: volta ao estado inicial
-    document.getElementById('btnEditar').addEventListener('click', () => {
-        document.querySelector('.main').classList.remove('calculated');
-        document.getElementById('resultArea').innerHTML = '';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-
     document.getElementById('btnCalcular').addEventListener('click', () => {
         const salario = parseBRL(document.getElementById('salario').value);
         const admissao = new Date(document.getElementById('dataAdmissao').value + 'T00:00:00');

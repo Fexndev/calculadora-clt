@@ -113,9 +113,9 @@ body {
    LAYOUT — dois estados
    ═══════════════════════════════════════ */
 
-/* Estado 1: form centralizado hero */
+/* Estado 1: form full-width hero */
 .layout {
-    display: flex; flex-direction: column; align-items: center;
+    display: flex; flex-direction: column;
     gap: 20px; transition: all .5s ease;
 }
 
@@ -148,24 +148,28 @@ body {
    FORM — dois estados
    ═══════════════════════════════════════ */
 
+/* Form hero: sem borda, sem fundo, full-width */
 .form-card {
-    width: 100%; max-width: 520px;
+    width: 100%;
     transition: all .5s ease, opacity .4s ease;
+    background: none; border: none; padding: 0;
 }
 
-/* Após calcular: sidebar compacta */
+/* Após calcular: sidebar compacta COM card styling */
 .calculated .form-card {
-    max-width: none; width: 100%;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px;
     opacity: .85; position: sticky; top: 16px;
 }
 .calculated .form-card:hover { opacity: 1; }
 
-.calculated .form-card .card-title { font-size: .78rem; margin-bottom: 12px; }
-.calculated .form-card .field { margin-bottom: 10px; }
-.calculated .form-card .field label { font-size: .6rem; }
+.form-card > .card-title { display: none; } /* oculto no hero */
+.calculated .form-card > .card-title { display: flex; font-size: .78rem; margin-bottom: 10px; }
+.calculated .form-card .field { margin-bottom: 8px; }
+.calculated .form-card .field label { font-size: .58rem; }
 .calculated .form-card .field input,
-.calculated .form-card .field select { font-size: .82rem; padding: 7px 10px; }
-.calculated .form-card .btn-calcular { padding: 10px; font-size: .82rem; }
+.calculated .form-card .field select { font-size: .8rem; padding: 7px 10px; }
+.calculated .form-card .btn-calcular { padding: 9px; font-size: .8rem; }
 
 .field { margin-bottom: 14px; }
 
@@ -177,10 +181,10 @@ body {
 
 .field input, .field select {
     width: 100%; appearance: none; -webkit-appearance: none;
-    background: var(--bg-input); border: 1px solid var(--border);
+    background: var(--bg-card); border: 1px solid var(--border);
     color: var(--text-primary); font-family: var(--font-sans);
-    font-size: .88rem; font-weight: 500; padding: 9px 12px;
-    border-radius: 6px; transition: border-color .15s;
+    font-size: .88rem; font-weight: 500; padding: 11px 14px;
+    border-radius: var(--radius-sm); transition: all .15s;
 }
 
 .field input:focus, .field select:focus {
@@ -194,19 +198,20 @@ body {
     padding-right: 32px;
 }
 
-/* Form fields em 2 colunas no estado hero */
+/* Form fields: grid responsivo no hero */
 .form-fields {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px 16px;
 }
 .form-fields .field-full { grid-column: 1 / -1; }
+.form-fields .field { margin-bottom: 0; }
 
-.calculated .form-fields { grid-template-columns: 1fr; }
+.calculated .form-fields { grid-template-columns: 1fr 1fr; gap: 8px 12px; }
 
 .btn-calcular {
-    width: 100%; padding: 12px; margin-top: 6px;
+    width: 100%; padding: 14px; margin-top: 4px;
     background: var(--accent-teal); color: var(--bg-page);
     border: none; border-radius: var(--radius-sm);
-    font-family: var(--font-sans); font-size: .88rem; font-weight: 700;
+    font-family: var(--font-sans); font-size: .92rem; font-weight: 700;
     cursor: pointer; transition: all .2s; letter-spacing: .02em;
 }
 .btn-calcular:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(94,234,212,.25); }
@@ -367,7 +372,7 @@ body {
     .main { padding: 16px; }
     .header-inner, .footer-inner { padding: 12px 16px; }
     .intro h1 { font-size: 1.3rem; }
-    .form-fields { grid-template-columns: 1fr; }
+    .form-fields { grid-template-columns: 1fr 1fr; }
 
     .calculated .layout {
         grid-template-columns: 1fr;
@@ -384,6 +389,7 @@ body {
 @media (max-width: 480px) {
     .intro h1 { font-size: 1.1rem; }
     .intro p { font-size: .82rem; }
+    .form-fields { grid-template-columns: 1fr; }
     .field label { font-size: .62rem; }
     .verba-label { font-size: .78rem; }
     .verba-valor { font-size: .78rem; }

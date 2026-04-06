@@ -391,6 +391,8 @@ function calcularProjecao(params) {
     return pontos;
 }
 
+if (typeof ChartDataLabels !== 'undefined') Chart.register(ChartDataLabels);
+
 function renderProjecao(params) {
     const area = document.getElementById('projecaoArea');
     if (!area || typeof Chart === 'undefined') return;
@@ -450,6 +452,16 @@ function renderProjecao(params) {
             plugins: {
                 legend: {
                     labels: { color: textColor, font: { family: "'Inter'", size: 11 }, boxWidth: 12, padding: 16 },
+                },
+                datalabels: {
+                    display: (ctx) => {
+                        const i = ctx.dataIndex, len = ctx.dataset.data.length;
+                        return ctx.datasetIndex === 0 && (i === 0 || i === len - 1 || i === Math.floor(len / 2));
+                    },
+                    color: textColor,
+                    font: { family: "'JetBrains Mono'", size: 10, weight: 600 },
+                    anchor: 'end', align: 'top', offset: 6,
+                    formatter: v => formatBRL(v),
                 },
                 tooltip: {
                     backgroundColor: '#161b22',

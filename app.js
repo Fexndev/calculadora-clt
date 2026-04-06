@@ -394,18 +394,20 @@ function calcularProjecao(params) {
 if (typeof ChartDataLabels !== 'undefined') Chart.register(ChartDataLabels);
 
 function renderProjecao(params) {
-    const area = document.getElementById('projecaoArea');
+    const area = document.getElementById('resultArea');
     if (!area || typeof Chart === 'undefined') return;
 
     const pontos = calcularProjecao(params);
 
-    area.innerHTML = `
+    // Remove gráfico anterior se existir
+    area.querySelector('.proj-card')?.remove();
+    area.insertAdjacentHTML('beforeend', `
         <div class="proj-card">
-            <div class="proj-title">Projecao de Rescisao — Proximos 12 Meses</div>
-            <div class="proj-subtitle">Simulacao do valor liquido se a demissao ocorrer nos proximos meses, mantendo os mesmos parametros.</div>
+            <div class="proj-title">Projecao — Proximos 12 Meses</div>
+            <div class="proj-subtitle">Valor liquido projetado se a demissao ocorrer nos proximos meses, mantendo os mesmos parametros.</div>
             <div class="proj-chart"><canvas id="projCanvas"></canvas></div>
         </div>
-    `;
+    `);
 
     const ctx = document.getElementById('projCanvas');
     if (!ctx) return;
@@ -418,12 +420,13 @@ function renderProjecao(params) {
 
     const fmtK = v => (v/1000).toFixed(1).replace('.',',') + ' k';
 
-    // FGTS box sobreposto
+    // FGTS info inline
     const fgtsAtual = pontos[0].fgts;
     const fgtsFinal = pontos[pontos.length-1].fgts;
-    const projContainer = area.querySelector('.proj-chart');
-    if (fgtsAtual > 0) {
-        projContainer.insertAdjacentHTML('afterbegin', `<div class="proj-fgts-box"><div class="proj-fgts-label">FGTS a receber</div><div class="proj-fgts-val">${formatBRL(fgtsAtual)}</div>${fgtsFinal!==fgtsAtual?`<div class="proj-fgts-detail">Em 12m: ${formatBRL(fgtsFinal)}</div>`:''}</div>`);
+    const projCard = area.querySelector('.proj-card');
+    if (fgtsAtual > 0 && projCard) {
+        projCard.querySelector('.proj-subtitle').insertAdjacentHTML('afterend',
+            `<div class="proj-fgts-inline"><span class="proj-fgts-label">FGTS a receber:</span> <strong>${formatBRL(fgtsAtual)}</strong>${fgtsFinal!==fgtsAtual?` <span class="proj-fgts-detail">(em 12m: ${formatBRL(fgtsFinal)})</span>`:''}</div>`);
     }
 
     _projChart = new Chart(ctx, {
@@ -450,9 +453,12 @@ function renderProjecao(params) {
                 legend: { display: false },
                 datalabels: {
                     display: true,
-                    color: textColor,
+                    color: '#e6edf3',
+                    backgroundColor: 'rgba(22,27,34,.8)',
+                    borderRadius: 4,
+                    padding: { top: 3, bottom: 3, left: 6, right: 6 },
                     font: { family: "'JetBrains Mono'", size: 9, weight: 600 },
-                    anchor: 'end', align: 'top', offset: 4,
+                    anchor: 'end', align: 'top', offset: 6,
                     formatter: v => fmtK(v),
                 },
                 tooltip: {
@@ -533,7 +539,6 @@ function init() {
     document.getElementById('btnEditar').addEventListener('click', () => {
         document.querySelector('.main').classList.remove('calculated');
         document.getElementById('resultArea').innerHTML = '';
-        document.getElementById('projecaoArea').innerHTML = '';
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 

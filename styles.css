@@ -125,7 +125,7 @@ body {
 /* Estado 2: form sidebar + dashboard */
 .calculated .layout {
     display: grid;
-    grid-template-columns: 320px 1fr;
+    grid-template-columns: 340px 1fr;
     align-items: start;
     gap: 20px;
 }
@@ -160,7 +160,7 @@ body {
 .calculated .form-card {
     background: var(--bg-card); border: 1px solid var(--border);
     border-radius: var(--radius); padding: 16px;
-    opacity: .85; position: sticky; top: 16px;
+    opacity: .85; position: sticky; top: 60px; z-index: 10;
 }
 .calculated .form-card:hover { opacity: 1; }
 
@@ -288,7 +288,7 @@ body {
 }
 
 /* Dashboard grid: verbas e descontos lado a lado */
-.result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
 
 .verbas-section {
     background: var(--bg-card); border: 1px solid var(--border);
@@ -301,9 +301,10 @@ body {
 
 .verba-row {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 8px 0; border-bottom: 1px solid var(--border); gap: 12px;
+    padding: 8px 0; border-bottom: 1px solid rgba(48,54,61,.4); gap: 12px;
 }
 .verba-row:last-child { border-bottom: none; }
+[data-theme="light"] .verba-row { border-bottom-color: rgba(208,215,222,.5); }
 
 .verba-label { font-size: .82rem; color: var(--text-secondary); flex: 1; }
 .verba-detail { font-size: .68rem; color: var(--text-muted); }
@@ -360,21 +361,19 @@ body {
 .proj-subtitle { font-size: .75rem; color: var(--text-muted); margin-bottom: 16px; }
 .proj-chart { position: relative; height: 300px; }
 
-.proj-fgts-box {
-    position: absolute; top: 12px; right: 16px; z-index: 10;
-    background: var(--bg-card); border: 1px solid var(--border);
-    border-radius: var(--radius-sm); padding: 10px 14px;
-    box-shadow: var(--shadow); text-align: right;
+.proj-fgts-inline {
+    font-size: .82rem; color: var(--text-secondary); margin-bottom: 14px;
+    padding: 10px 14px; background: rgba(88,166,255,.06); border: 1px solid rgba(88,166,255,.12);
+    border-radius: var(--radius-sm); display: inline-block;
 }
-.proj-fgts-label {
-    font-size: .6rem; font-weight: 700; text-transform: uppercase;
-    letter-spacing: .06em; color: var(--text-muted);
+.proj-fgts-inline .proj-fgts-label {
+    font-size: .68rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .04em; color: var(--text-muted);
 }
-.proj-fgts-val {
-    font-family: var(--font-mono); font-size: 1rem; font-weight: 700;
-    color: var(--accent-blue);
+.proj-fgts-inline strong {
+    font-family: var(--font-mono); color: var(--accent-blue);
 }
-.proj-fgts-detail { font-size: .68rem; color: var(--text-muted); margin-top: 2px; }
+.proj-fgts-inline .proj-fgts-detail { font-size: .75rem; color: var(--text-muted); }
 
 /* ═══════════════════════════════════════
    FOOTER
